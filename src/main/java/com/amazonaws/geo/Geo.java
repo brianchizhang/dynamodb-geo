@@ -2,6 +2,7 @@ package com.amazonaws.geo;
 
 import com.amazonaws.geo.model.*;
 import com.amazonaws.geo.model.filters.GeoFilters;
+import com.amazonaws.services.dynamodbv2.document.Item;
 import com.dashlabs.dash.geo.model.filters.GeoFilter;
 import com.dashlabs.dash.geo.s2.internal.S2Manager;
 import com.amazonaws.services.dynamodbv2.model.*;
@@ -48,6 +49,10 @@ public class Geo {
         return putItemRequest;
     }
 
+//    public Item putItemRequest(Item item, double latitude, double longitude, List<GeoConfig> configs) {
+//        updateAttributeValues(item, latitude, longitude, configs);
+//    }
+
     /**
      * Decorates the given <code>updateItemRequest</code> with attributes required for geo spatial querying.
      *
@@ -88,6 +93,54 @@ public class Geo {
                 geoHashKeyValue = new AttributeValue().withN(String.valueOf(geoHashKey));
             }
             attributeValueMap.put(config.getGeoHashKeyColumn(), geoHashKeyValue);
+        }
+    }
+
+    /**
+     * For use with newer DynamoDB
+     * @param item
+     * @param latitude
+     * @param longitude
+     * @param configs
+     */
+    public void updateAttributeValuesForItem(Item item, double latitude, double longitude,
+                                      List<GeoConfig> configs) {
+        if (configs == null) {
+            throw new IllegalArgumentException("Geo configs should not be null");
+        }
+        for (GeoConfig config : configs) {
+            //Fail-fast if any of the preconditions fail
+            checkConfigParams(config.getGeoIndexName(), config.getGeoHashKeyColumn(), config.getGeoHashColumn(),
+                    config.getGeoHashKeyLength());
+
+            long geohash = s2Manager.generateGeohash(latitude, longitude);
+            long geoHashKey = s2Manager.generateHashKey(geohash, config.getGeoHashKeyLength());
+
+            //Decorate the request with the geohash
+//            AttributeValue geoHashValue = new AttributeValue().withN(Long.toString(geohash));
+//            item.put(config.getGeoHashColumn(), geoHashValue);
+            item.withNumber(config.getGeoHashColumn(), geohash);
+
+            AttributeValue geoHashKeyValue;
+            if (config.getHashKeyDecorator().isPresent() && config.getCompositeHashKeyColumn().isPresent()) {
+//                AttributeValue compositeHashKeyValue = item.get(config.getCompositeHashKeyColumn().get());
+                String compositeHashKeyValue = item.getString(config.getCompositeHashKeyColumn().get());
+                if (compositeHashKeyValue == null) {
+                    continue;
+                }
+//                String compositeColumnValue = compositeHashKeyValue;
+                String hashKey = config.getHashKeyDecorator().get().decorate(compositeHashKeyValue, geoHashKey);
+                //Decorate the request with the composite geoHashKey (type String)
+//                geoHashKeyValue = new AttributeValue().withS(String.valueOf(hashKey));
+
+                item.withString(config.getGeoHashKeyColumn(), hashKey);
+            } else {
+                //Decorate the request with the geoHashKey (type Number)
+//                geoHashKeyValue = new AttributeValue().withN(String.valueOf(geoHashKey));
+                item.withNumber(config.getGeoHashKeyColumn(), geoHashKey);
+            }
+
+//            item.put(config.getGeoHashKeyColumn(), geoHashKeyValue);
         }
     }
 
