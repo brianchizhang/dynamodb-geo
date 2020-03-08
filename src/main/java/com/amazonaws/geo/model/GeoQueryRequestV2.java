@@ -1,5 +1,6 @@
 package com.amazonaws.geo.model;
 
+import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
@@ -17,9 +18,9 @@ public class GeoQueryRequestV2 {
 
     private final List<QuerySpec> queryRequests;
 
-    private final GeoFilter<Map<String, AttributeValue>> resultFilter;
+    private final GeoFilter<Item> resultFilter;
 
-    public GeoQueryRequestV2(List<QuerySpec> queryRequests, GeoFilter<Map<String, AttributeValue>> resultFilter) {
+    public GeoQueryRequestV2(List<QuerySpec> queryRequests, GeoFilter<Item> resultFilter) {
         this.queryRequests = queryRequests;
         this.resultFilter = resultFilter;
     }
@@ -28,7 +29,7 @@ public class GeoQueryRequestV2 {
         return queryRequests;
     }
 
-    public GeoFilter<Map<String, AttributeValue>> getResultFilter() {
+    public GeoFilter<Item> getResultFilter() {
         return resultFilter;
     }
 

@@ -28,6 +28,10 @@ public class GeoFilters {
         return new RadiusGeoFilter<T>(extractor, centerLatLng, radiusInMeter);
     }
 
+    public static <T> GeoFilter<T> newRadiusFilterV2(GeoDataExtractor<T> extractor, S2LatLng centerLatLng, double radiusInMeter) {
+        return new RadiusGeoFilter<T>(extractor, centerLatLng, radiusInMeter);
+    }
+
     /**
      * Factory method to create a filter used by rectangle queries
      *

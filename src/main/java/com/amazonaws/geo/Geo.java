@@ -245,7 +245,7 @@ public class Geo {
         checkConfigParams(config.getGeoIndexName(), config.getGeoHashKeyColumn(), config.getGeoHashColumn(), config.getGeoHashKeyLength());
         //Center latLong is needed for the radius filter
         S2LatLng centerLatLng = S2LatLng.fromDegrees(latitude, longitude);
-        GeoFilter<Map<String, AttributeValue>> filter = GeoFilters.newRadiusFilter(centerLatLng, radius);
+        GeoFilter<Item> filter = GeoFilters.newRadiusFilterV2(centerLatLng, radius);
         //Bounding box is needed to generate queries for each cell that intersects with the bounding box
         S2LatLngRect boundingBox = s2Manager.getBoundingBoxForRadiusQuery(latitude, longitude, radius);
         List<QuerySpec> geoQueries = geoQueryHelper.generateGeoQueryV2(querySpec, boundingBox, config, compositeKeyValue);
