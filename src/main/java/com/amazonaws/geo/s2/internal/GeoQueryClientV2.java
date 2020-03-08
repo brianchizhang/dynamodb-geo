@@ -29,7 +29,7 @@ public class GeoQueryClientV2 {
     /**
      * The db client to use when executing the queries
      */
-    private final Table dynamoTable;
+    private final Index dynamoTable;
 
 
     /**
@@ -37,7 +37,7 @@ public class GeoQueryClientV2 {
      */
     private final ExecutorService executorService;
 
-    public GeoQueryClientV2(Table table, ExecutorService executorService) {
+    public GeoQueryClientV2(Index table, ExecutorService executorService) {
         this.dynamoTable = table;
         this.executorService = executorService;
     }
