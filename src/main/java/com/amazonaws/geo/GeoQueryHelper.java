@@ -90,7 +90,7 @@ public class GeoQueryHelper extends AbstractGeoQueryHelper {
             List<GeohashRange> geohashRanges = outerRange.trySplit(config.getGeoHashKeyLength(), s2Manager);
             for (GeohashRange range : geohashRanges) {
                 //Make a copy of the query request to retain original query attributes like table name, etc.
-                QuerySpec queryRequest = copyQuerySpec(query);
+                QuerySpec queryRequest = new QuerySpec();
 
                 //generate the hash key for the global secondary index
                 long geohashKey = s2Manager.generateHashKey(range.getRangeMin(), config.getGeoHashKeyLength());
@@ -154,25 +154,26 @@ public class GeoQueryHelper extends AbstractGeoQueryHelper {
         return copiedQueryRequest;
     }
 
-    private QuerySpec copyQuerySpec(QuerySpec querySpec) {
-
-        QuerySpec copiedQuerySpec = new QuerySpec().withAttributesToGet(querySpec.getAttributesToGet().toArray(new String[0]))
-                .withConsistentRead(querySpec.isConsistentRead())
-                .withExclusiveStartKey(querySpec.getExclusiveStartKey().toArray(new KeyAttribute[0]))
-//                .withIndexName(querySpec.getIndexName())
-                .withKeyConditionExpression(querySpec.getKeyConditionExpression())
-//                .withKeyConditions(querySpec.getKeyConditions())
-//                .withLimit(querySpec.getLimit())
-                .withReturnConsumedCapacity(ReturnConsumedCapacity.fromValue(querySpec.getReturnConsumedCapacity()))
-                .withScanIndexForward(querySpec.isScanIndexForward())
-                .withSelect(Select.fromValue(querySpec.getSelect()))
-                .withAttributesToGet(querySpec.getAttributesToGet().toArray(new String[0]))
-//                .withTableName(querySpec.getTableName())
-                .withFilterExpression(querySpec.getFilterExpression())
-                .withProjectionExpression(querySpec.getProjectionExpression());
-//                .withExpressionSpec(querySpec.getExpression)
-//                .withExpressionAttributeNames(querySpec.getExpressionAttributeNames())
-//                .withExpressionAttributeValues(querySpec.getExpressionAttributeValues());
-        return copiedQuerySpec;
-    }
+//    private QuerySpec copyQuerySpec(QuerySpec querySpec) {
+//        // does not copy
+//        return new QuerySpec();
+//        QuerySpec copiedQuerySpec = new QuerySpec().withAttributesToGet(querySpec.getAttributesToGet().toArray(new String[0]))
+//                .withConsistentRead(querySpec.isConsistentRead())
+//                .withExclusiveStartKey(querySpec.getExclusiveStartKey().toArray(new KeyAttribute[0]))
+////                .withIndexName(querySpec.getIndexName())
+//                .withKeyConditionExpression(querySpec.getKeyConditionExpression())
+////                .withKeyConditions(querySpec.getKeyConditions())
+////                .withLimit(querySpec.getLimit())
+//                .withReturnConsumedCapacity(ReturnConsumedCapacity.fromValue(querySpec.getReturnConsumedCapacity()))
+//                .withScanIndexForward(querySpec.isScanIndexForward())
+//                .withSelect(Select.fromValue(querySpec.getSelect()))
+//                .withAttributesToGet(querySpec.getAttributesToGet().toArray(new String[0]))
+////                .withTableName(querySpec.getTableName())
+//                .withFilterExpression(querySpec.getFilterExpression())
+//                .withProjectionExpression(querySpec.getProjectionExpression());
+////                .withExpressionSpec(querySpec.getExpression)
+////                .withExpressionAttributeNames(querySpec.getExpressionAttributeNames())
+////                .withExpressionAttributeValues(querySpec.getExpressionAttributeValues());
+//        return copiedQuerySpec;
+//    }
 }
