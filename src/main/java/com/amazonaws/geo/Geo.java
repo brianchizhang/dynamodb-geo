@@ -3,6 +3,7 @@ package com.amazonaws.geo;
 import com.amazonaws.geo.model.*;
 import com.amazonaws.geo.model.filters.GeoFilters;
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.dashlabs.dash.geo.model.filters.GeoFilter;
 import com.dashlabs.dash.geo.s2.internal.S2Manager;
 import com.amazonaws.services.dynamodbv2.model.*;
@@ -236,6 +237,19 @@ public class Geo {
         S2LatLngRect boundingBox = s2Manager.getBoundingBoxForRadiusQuery(latitude, longitude, radius);
         List<QueryRequest> geoQueries = geoQueryHelper.generateGeoQueries(queryRequest, boundingBox, config, compositeKeyValue);
         return new GeoQueryRequest(geoQueries, filter);
+    }
+
+    /* V2, for use with QuerySpec */
+    public GeoQueryRequestV2 radiusQuery(QuerySpec querySpec, double latitude, double longitude, double radius, GeoConfig config, Optional<String> compositeKeyValue) {
+        checkArgument(radius >= 0.0d, "radius has to be a positive value: %s", radius);
+        checkConfigParams(config.getGeoIndexName(), config.getGeoHashKeyColumn(), config.getGeoHashColumn(), config.getGeoHashKeyLength());
+        //Center latLong is needed for the radius filter
+        S2LatLng centerLatLng = S2LatLng.fromDegrees(latitude, longitude);
+        GeoFilter<Map<String, AttributeValue>> filter = GeoFilters.newRadiusFilter(centerLatLng, radius);
+        //Bounding box is needed to generate queries for each cell that intersects with the bounding box
+        S2LatLngRect boundingBox = s2Manager.getBoundingBoxForRadiusQuery(latitude, longitude, radius);
+        List<QuerySpec> geoQueries = geoQueryHelper.generateGeoQueryV2(querySpec, boundingBox, config, compositeKeyValue);
+        return new GeoQueryRequestV2(geoQueries, filter);
     }
 
     /**
